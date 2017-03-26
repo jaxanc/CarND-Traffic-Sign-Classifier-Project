@@ -3,7 +3,7 @@
 
 ## Workbook
 
-Workbook can be found  [here](https://github.com/jaxanc/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb)
+Workbook in IPython can be found  [here](https://github.com/jaxanc/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb) or in [html](https://github.com/jaxanc/CarND-Traffic-Sign-Classifier-Project/blob/master/report.html)
 
 ## Writeup
 
