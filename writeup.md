@@ -19,6 +19,12 @@ The goals / steps of this project are the following:
 [image7]: ./German_Traffic_Sign_Images/roadWorks.jpg "Road Works"
 [image8]: ./German_Traffic_Sign_Images/speedLimit70.jpg "Speed Limit 70"
 [image9]: ./German_Traffic_Sign_Images/stop.jpg "Stop"
+[image10]: ./Support_Files_For_Writeup/RoadWorksWebConvLayer1.png "Road Works Web Convolutional Layer 1"
+[image11]: ./Support_Files_For_Writeup/Softmax_BumpyRoad.png "Softmax Probability for Bumpy Road"
+[image12]: ./Support_Files_For_Writeup/Softmax_Pedestrians.png "Softmax Probability for Pedestrians"
+[image13]: ./Support_Files_For_Writeup/Softmax_RoadWork.png "Softmax Probability for Road Works"
+[image14]: ./Support_Files_For_Writeup/SoftMax_70kmphr.png "Softmax Probability for 70 km/h Limit"
+[image15]: ./Support_Files_For_Writeup/Softmax_Stop.png "Softmax Probability for Stop"
 
 ## Rubric Points
 Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.
@@ -113,7 +119,11 @@ My final model consisted of the following layers:
 
 The code for training the model is located in the cells of the IPython notebook under the heading **Train, Validate and Test the Model**
 
-To train the model, I used an atom optimizer. The batch size is 128, number of epochs is 50 and learning rate = 0.0009
+To train the model, I used an Adam optimizer. While searching and experimenting for different optimizers, I found this blog to be quite useful: [Optimizing Gradient Decent](http://sebastianruder.com/optimizing-gradient-descent/)
+
+The batch size is 128 and epochs is 50. After playing around with different batch sizes and epochs number, I was not able to come up with an optimal approach with the time I allowed myself. I didn't find increasing batch size to significantly increase memory usage.
+
+I left the learning rate to be as low as possible (learning rate = 0.0009) and run for longer time to hopefully achieve the most accurate result.
 
 #### 5. Describe the approach taken for finding a solution. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
@@ -124,17 +134,47 @@ My final model results were:
 * validation set accuracy of 96.9
 * test set accuracy of 95.1%
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
-* What were some problems with the initial architecture?
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to over fitting or under fitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+**If an iterative approach was chosen:**
+**What was the first architecture that was tried and why was it chosen?**
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
+The LeNet solution from the Convolutional Neural Networks lesson was chosen as the first architecture. After adjusting the input sizes and colour depth, it was able to achieve about 85% validation accuracy.
+
+**What were some problems with the initial architecture?**
+
+It was over-fitting the data. The training data was able to achieve reasonable accuracy but validation data flatten at about 85%.
+
+**How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc.), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to over fitting or under fitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.**
+
+To overcome over-fitting, I have added dropouts to the model at various layer and experimented different keep probabilities. The best result seem to be placing two dropouts sandwiched between the three fully connected layer and keep probability lower than 0.5. The results were still over fitting, but accuracy was reasonable (validation accuracy around 94%)
+
+Later on I changed strategy and looked into training data itself. After experimentation, the following was implemented:
+* Per image normalization the same as the implementation in tensorflow. However I had issues getting the function working properly, so I wrote my own function.
+* Some classes have very low counts, around 200 compared to 2000 in other classes. So I added random rotation and translation to generate fake data for classes with low counts.
+
+**Which parameters were tuned? How were they adjusted and why?**
+
+The learning rate was initially increased to help speed up the training but was creating worse results. Thus it is lowered to as small as possible to create accurate data.
+
+The keep rate was adjusted to help reduce over-fitting, but below 0.5, it did not seem to improve results any further.
+
+To generate fake data, I have tried rotation and translation. There are other techniques I could also try, such as brightness adjustment, shear, scaling etc.. After trying to tune the amount of rotation and translation I have decided to keep this simple.
+
+**What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?**
+
+Adding the dropout layers was a good decision. It helped to reduce over-fitting of the data and also create fake data on classes with low number of samples.
+
+**If a well known architecture was chosen:**
+**What architecture was chosen?**
+
+The LeNet model with dropout layers were chosen.
+
+**Why did you believe it would be relevant to the traffic sign application?**
+
+It showed promising results predicting 32x32 letters and numbers. It has enough layers to recognise objects in similar size street signs.
+
+**How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?**
+
+It can predict test data set to 95% accuracy. Higher than the requirement of 93% for the validation set. However, the model is still over-fitting. For future work, I would remove more layers from the model to help remove over-fitting.
 
 ### Test a Model on New Images
 
@@ -163,18 +203,32 @@ Here are the results of the prediction:
 
 The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. It did not correctly predict the road works sign and confused it with a bicycle.
 
+Further analysis was done looking into the feature maps below while processing the Road Works street sign.
+
+![alt text][image10]
+
+It is clear to see the bright spot between the legs of the man and the pile of dirt has been recognised as features. Even from looking into let's say Feature Map 1 or Feature Map 2, I would think it is a bicycle. It is interesting, and a bit strange that a white spot and a black spot has been recognised as similar features.
+
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction and identify where in your code softmax probabilities were outputted. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
-The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
+The code for making predictions on my final model is located in the first cell of the Ipython notebook under the heading **Visualizing Softmax probabilities**
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For the first image, the model is sure that this is a Bumpy Road sign (probability of 1.0). The correct result is Bumpy Road sign. The top five soft max probabilities were:
 
-| Probability | Prediction |
-|:-------------:|:-------------:|
-| .60 | Stop sign 							|
-| .20 | U-turn |
-| .05 | Yield |
-| .04 | Bumpy Road |
-| .01 | Slippery Road |
+![alt text][image11]
 
-For the second image ...
+For the second image is sure that this is a Pedestrians sign (probability of 0.99999). The correct result is Pedestrians sign. The top five soft max probabilities were:
+
+![alt text][image12]
+
+For the third image is relatively sure that this is a Road Works sign (probability of 0.972), however the correct result is Road Work. The top five soft max probabilities were:
+
+![alt text][image13]
+
+For the forth image is sure that this is a Speed Limit (70 km/h) sign (probability of 0.992). The correct result is a Speed Limit (70 km/h) sign. The second prediction is the Speed Limit (20 km/h) sign which seems sensible. The top five soft max probabilities were:
+
+![alt text][image14]
+
+For the fifth image is sure that this is a Stop sign (probability of 1.0). The correct result is a Stop sign. The top five soft max probabilities were:
+
+![alt text][image15]
