@@ -182,10 +182,26 @@ It can predict test data set to 95% accuracy. Higher than the requirement of 93%
 
 Here are five German traffic signs that I found on the web:
 
-![alt text][image5] ![alt text][image6] ![alt text][image7]
-![alt text][image8] ![alt text][image9]
+The first image is a Bumpy Road sign. The image is slightly tilted counter clockwise and there are marks on the road sign but should the image is clear and the model should not have issues.
 
-The first image might be difficult to classify because ...
+![alt text][image5]
+
+The second image is a Pedestrian sign. There is a water mark covering part of the street sign that might confuse the model.
+
+![alt text][image6]
+
+The third image is a Road Work sign and uses two interesting clamps to hold the sign in place. The pattern is a bit complex when comparing to other signs. My model did find it confusing and thought this was a Bicycle sign.
+
+![alt text][image7]
+
+This is the sign I am most worried about. There are many different speed limit numbers and the number "7" could be confused with other numbers especially when the pixel count is so low, it will make it even harder for the model to recognise. At 32x32 pixel count, I find it hard to recognise the numbers at low brightness.
+
+![alt text][image8]
+
+The stop sign should be easily to recognise even with the water mark. It is one of the only signs with white rims and red background.
+
+![alt text][image9]
+
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. Identify where in your code predictions were made. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
